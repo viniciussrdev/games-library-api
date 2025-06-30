@@ -20,22 +20,22 @@ public class Loan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_loan")
-    private Long idLoan;
+    private Long idLoan; // ID
 
     @ManyToOne
     @JoinColumn(name = "game_id")
-    private Game game;
+    private Game game; // Jogo
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user; // Usuário
 
-    private LocalDate loanDate;
+    private LocalDate loanDate; // Data Empréstimo
 
-    private LocalDate returnDate;
+    private LocalDate returnDate; // Data Devolução
 
     @Enumerated(EnumType.STRING)
-    private LoanStatus status;
+    private LoanStatus status; // Status Empréstimo
 
     public Loan(
             Game game,

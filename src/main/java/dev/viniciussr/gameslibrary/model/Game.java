@@ -18,22 +18,22 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_game")
-    private Long idGame;
+    private Long idGame; // ID
 
-    private String title;
+    private String title; // Título
 
     @Enumerated(EnumType.STRING)
-    private Genres genre;
+    private Genres genre; // Gênero
 
-    private String studio;
+    private String studio; // Estúdio
 
     @ElementCollection(targetClass = Platforms.class)
     @Enumerated(EnumType.STRING)
-    private Set<Platforms> platform;
+    private Set<Platforms> platform; // Plataforma
 
-    private Integer quantity;
+    private Integer quantity; // Quantidade
 
-    private boolean available;
+    private boolean available; // Disponível(?)
 
     public Game(
             String title,

@@ -227,7 +227,7 @@ public class LoanService {
         gameRepository.save(game);
     }
 
-    // Atualizar contagem de EMPRÉSTIMOS do USUÁRIO
+    // Atualizar contagem de EMPRÉSTIMOS ATIVOS do USUÁRIO
     private void updateUserLoanCount(User user, int x) {
 
         user.setActiveLoans(user.getActiveLoans() + x);
@@ -247,7 +247,7 @@ public class LoanService {
         }
     }
 
-    // Verificar EMPRÉSTIMOS ATRASADS
+    // Verificar EMPRÉSTIMOS ATRASADOS
     @Scheduled(cron = "0 0 0 * * *") // Todos os dias às 00h
     public void checkForLateLoans() {
         updateLateLoans();

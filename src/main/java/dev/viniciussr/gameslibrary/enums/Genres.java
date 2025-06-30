@@ -1,5 +1,6 @@
 package dev.viniciussr.gameslibrary.enums;
 
+// Enum Gênero de Games
 public enum Genres {
     ACTION,
     ADVENTURE,

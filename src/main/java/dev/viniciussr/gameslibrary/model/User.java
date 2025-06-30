@@ -18,16 +18,16 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    private Long idUser;
+    private Long idUser; // ID
 
-    private String name;
+    private String name; // Nome
 
-    private String email;
+    private String email; // Email
 
     @Enumerated(EnumType.STRING)
-    private Plans plan;
+    private Plans plan; // Plano Assinatura
 
-    private Integer activeLoans;
+    private Integer activeLoans; // Empréstimos Ativos
 
     public User(
             String name,

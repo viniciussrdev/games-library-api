@@ -19,7 +19,7 @@ public class GameService {
 
     // -------------------- CRUD BÁSICO --------------------
 
-    // Salvar GAME
+    // Salvar/Criar GAME
     public GameDTO createGame(GameDTO dto) {
 
         Game savedGame = new Game(
