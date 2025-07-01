@@ -7,6 +7,7 @@ import dev.viniciussr.gameslibrary.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -55,10 +56,9 @@ public class UserService {
     // --------------- MÉTODOS DE BUSCA/LISTA ---------------
 
     // Buscar USUÁRIO por ID
-    public UserDTO findUserById(Long id) {
+    public Optional<UserDTO> findUserById(Long id) {
         return userRepository.findById(id)
-                .map(UserDTO::new)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + id));
+                .map(UserDTO::new);
     }
 
     // Listar USUÁRIOS (Todos)
