@@ -7,6 +7,7 @@ import dev.viniciussr.gameslibrary.repository.GameRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GameService {
@@ -61,10 +62,9 @@ public class GameService {
     // --------------- MÉTODOS DE BUSCA/LISTA ---------------
 
     // Buscar GAME por ID
-    public GameDTO findGameById(Long id) {
+    public Optional<GameDTO> findGameById(Long id) {
         return gameRepository.findById(id)
-                .map(GameDTO::new)
-                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + id));
+                .map(GameDTO::new);
     }
 
     // Listar GAMES (Todos)
