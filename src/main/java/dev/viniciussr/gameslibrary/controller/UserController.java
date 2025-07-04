@@ -1,6 +1,5 @@
 package dev.viniciussr.gameslibrary.controller;
 
-import dev.viniciussr.gameslibrary.dto.GameDTO;
 import dev.viniciussr.gameslibrary.dto.UserDTO;
 import dev.viniciussr.gameslibrary.enums.Plans;
 import dev.viniciussr.gameslibrary.service.UserService;
@@ -17,7 +16,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO dto) {

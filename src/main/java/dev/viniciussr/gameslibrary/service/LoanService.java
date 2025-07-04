@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LoanService {
@@ -21,10 +22,13 @@ public class LoanService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
 
-    public LoanService(LoanRepository loanRepository, GameRepository gameRepository, UserRepository userRepository) {
+    private final BusinessService businessService;
+
+    public LoanService(LoanRepository loanRepository, GameRepository gameRepository, UserRepository userRepository, BusinessService businessService) {
         this.loanRepository = loanRepository;
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
+        this.businessService = businessService;
     }
 
     // -------------------- CRUD BÁSICO --------------------
@@ -38,8 +42,8 @@ public class LoanService {
         User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + dto.userId()));
 
-        validateGameAvailability(game);
-        validateUserLoanLimit(user);
+        businessService.validateGameAvailability(game);
+        businessService.validateUserLoanLimit(user);
 
         Loan savedLoan = new Loan(
                 game,
@@ -49,8 +53,8 @@ public class LoanService {
                 LoanStatus.ACTIVE
         );
 
-        updateGameQuantity(game, -1);
-        updateUserLoanCount(user, 1);
+        businessService.updateGameQuantity(game, -1);
+        businessService.updateUserLoanCount(user, 1);
 
         return new LoanDTO(loanRepository.save(savedLoan));
     }
@@ -89,14 +93,40 @@ public class LoanService {
         loanRepository.delete(deletedLoan);
     }
 
+    // --------------- MÉTODOS DE SERVIÇO ---------------
+
+    // Devolver EMPRÉSTIMO
+    public void returnLoan(Long id) {
+
+        Loan returnedLoan = loanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
+
+        if (returnedLoan.getStatus() != LoanStatus.ACTIVE) {
+            throw new RuntimeException("Este empréstimo já foi encerrado: " + returnedLoan.getIdLoan());
+        }
+
+        returnedLoan.setStatus(LoanStatus.RETURNED);
+        returnedLoan.setReturnDate(LocalDate.now());
+
+        businessService.updateGameQuantity(returnedLoan.getGame(), 1);
+        businessService.updateUserLoanCount(returnedLoan.getUser(), -1);
+
+        loanRepository.save(returnedLoan);
+    }
+
+    // Verificar EMPRÉSTIMOS ATRASADOS
+    @Scheduled(cron = "0 0 0 * * *") // Todos os dias às 00h
+    public void checkForLateLoans() {
+        businessService.updateLateLoans();
+    }
+
     // --------------- MÉTODOS DE BUSCA/LISTA ---------------
 
     // Buscar EMPRÉSTIMO por ID
-    public LoanDTO findLoanById(Long id) {
+    public Optional<LoanDTO> findLoanById(Long id) {
 
         return loanRepository.findById(id)
-                .map(LoanDTO::new)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
+                .map(LoanDTO::new);
     }
 
     // Listar EMPRÉSTIMOS (Todos)
@@ -175,81 +205,5 @@ public class LoanService {
                 .toList();
     }
 
-    // --------------- MÉTODOS AUXILIARES ---------------
 
-    // Devolver EMPRÉSTIMO
-    public void returnLoan(Long id) {
-
-        Loan returnedLoan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
-
-        if (returnedLoan.getStatus() != LoanStatus.ACTIVE) {
-            throw new RuntimeException("Este empréstimo já foi encerrado: " + returnedLoan.getIdLoan());
-        }
-
-        returnedLoan.setStatus(LoanStatus.RETURNED);
-        returnedLoan.setReturnDate(LocalDate.now());
-
-        updateGameQuantity(returnedLoan.getGame(), 1);
-        updateUserLoanCount(returnedLoan.getUser(), -1);
-
-        loanRepository.save(returnedLoan);
-    }
-
-    // Validar DISPONIBILIDADE do GAME
-    private void validateGameAvailability(Game game) {
-
-        if (game.getQuantity() <= 0) {
-            throw new RuntimeException("Game indisponível para empréstimo: " + game.getTitle() +
-                    " (Quantidade: " + game.getQuantity() + ") ");
-        }
-    }
-
-    // Validar limite de EMPRÉSTIMOS do USUÁRIO
-    private void validateUserLoanLimit(User user) {
-
-        int maxLoans = switch (user.getPlan()) {
-            case NOOB -> 1;
-            case PRO -> 3;
-            case LEGEND -> 5;
-        };
-
-        if (user.getActiveLoans() >= maxLoans) {
-            throw new RuntimeException("Limite de empréstimos atingido para o plano: " + user.getPlan());
-        }
-    }
-
-    // Atualizar quantidade do GAME após EMPRÉSTIMO ou DEVOLUÇÃO
-    private void updateGameQuantity(Game game, int x) {
-
-        game.setQuantity(game.getQuantity() + x);
-        game.setAvailable(game.getQuantity() > 0);
-        gameRepository.save(game);
-    }
-
-    // Atualizar contagem de EMPRÉSTIMOS ATIVOS do USUÁRIO
-    private void updateUserLoanCount(User user, int x) {
-
-        user.setActiveLoans(user.getActiveLoans() + x);
-        userRepository.save(user);
-    }
-
-    // Atualizar status de EMPRÉSTIMO para "ATRASADO"
-    public void updateLateLoans() {
-
-        List<Loan> activeLoans = loanRepository.findByStatus(LoanStatus.ACTIVE);
-
-        for (Loan loan : activeLoans) {
-            if (loan.getLoanDate().plusDays(15).isBefore(LocalDate.now())) {
-                loan.setStatus(LoanStatus.LATE);
-                loanRepository.save(loan);
-            }
-        }
-    }
-
-    // Verificar EMPRÉSTIMOS ATRASADOS
-    @Scheduled(cron = "0 0 0 * * *") // Todos os dias às 00h
-    public void checkForLateLoans() {
-        updateLateLoans();
-    }
 }
