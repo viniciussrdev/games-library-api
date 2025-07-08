@@ -3,7 +3,6 @@ package dev.viniciussr.gameslibrary.controller;
 import dev.viniciussr.gameslibrary.dto.UserDTO;
 import dev.viniciussr.gameslibrary.enums.Plans;
 import dev.viniciussr.gameslibrary.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +13,11 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO dto) {
@@ -35,10 +37,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> findUserById(@PathVariable Long id) {
-        return userService.findUserById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-
+        return ResponseEntity.ok(userService.findUserById(id));
     }
 
     @GetMapping
@@ -48,34 +47,16 @@ public class UserController {
 
     @GetMapping("/name")
     public ResponseEntity<List<UserDTO>> listUsersByName(@RequestParam String name) {
-
-        List<UserDTO> users = userService.listUsersByName(name);
-
-        if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.listUsersByName(name));
     }
 
     @GetMapping("/email")
     public ResponseEntity<List<UserDTO>> listUsersByEmail(@RequestParam String email) {
-
-        List<UserDTO> users = userService.listUsersByEmail(email);
-
-        if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.listUsersByEmail(email));
     }
 
     @GetMapping("/plan")
     public ResponseEntity<List<UserDTO>> listUsersByPlan(@RequestParam Plans plan) {
-
-        List<UserDTO> users = userService.listUsersByPlan(plan);
-
-        if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.listUsersByPlan(plan));
     }
 }

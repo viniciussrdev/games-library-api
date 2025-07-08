@@ -1,6 +1,7 @@
 package dev.viniciussr.gameslibrary.service;
 
 import dev.viniciussr.gameslibrary.dto.GameDTO;
+import dev.viniciussr.gameslibrary.dto.LoanDTO;
 import dev.viniciussr.gameslibrary.enums.Genres;
 import dev.viniciussr.gameslibrary.model.Game;
 import dev.viniciussr.gameslibrary.repository.GameRepository;
@@ -20,7 +21,7 @@ public class GameService {
 
     // -------------------- CRUD BÁSICO --------------------
 
-    // Salvar/Criar GAME
+    // Criar GAME
     public GameDTO createGame(GameDTO dto) {
 
         Game savedGame = new Game(
@@ -59,56 +60,102 @@ public class GameService {
         gameRepository.delete(deletedGame);
     }
 
-    // --------------- MÉTODOS DE BUSCA/LISTA ---------------
+    // --------------- MÉTODOS COMPLEMENTARES ---------------
+
+    // Validar DISPONIBILIDADE do GAME
+    void validateGameAvailability(Game game) {
+
+        if (game.getQuantity() <= 0) {
+            throw new RuntimeException("Game indisponível para empréstimo: " + game.getTitle() +
+                    " (Quantidade: " + game.getQuantity() + ") ");
+        }
+    }
+
+    // Atualizar QUANTIDADE do GAME após EMPRÉSTIMO ou DEVOLUÇÃO
+    void updateGameQuantity(Game game, int x) {
+
+        game.setQuantity(game.getQuantity() + x);
+        game.setAvailable(game.getQuantity() > 0);
+        gameRepository.save(game);
+    }
+
+    // --------------- FILTROS ---------------
 
     // Buscar GAME por ID
-    public Optional<GameDTO> findGameById(Long id) {
+    public GameDTO findGameById(Long id) {
+
         return gameRepository.findById(id)
-                .map(GameDTO::new);
+                .map(GameDTO::new)
+                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + id));
     }
 
     // Listar GAMES (Todos)
     public List<GameDTO> listGames() {
 
-        return gameRepository.findAll()
+        List<GameDTO> games = gameRepository.findAll()
                 .stream()
                 .map(GameDTO::new)
                 .toList();
+
+        if (games.isEmpty()) {
+            throw new RuntimeException("Nenhum Game encontrado");
+        }
+        return games;
     }
 
     // Listar GAMES por TÍTULO
     public List<GameDTO> listGamesByTitle(String title) {
 
-        return gameRepository.findByTitle(title)
+        List<GameDTO> games = gameRepository.findByTitle(title)
                 .stream()
                 .map(GameDTO::new)
                 .toList();
+
+        if (games.isEmpty()) {
+            throw new RuntimeException("Nenhum Game encontrado com o título: " + title);
+        }
+        return games;
     }
 
     // Listar GAMES por GÊNERO
     public List<GameDTO> listGamesByGenre(Genres genre) {
 
-        return gameRepository.findByGenre(genre)
+        List<GameDTO> games = gameRepository.findByGenre(genre)
                 .stream()
                 .map(GameDTO::new)
                 .toList();
+
+        if (games.isEmpty()) {
+            throw new RuntimeException("Nenhum Game encontrado do gênero: " + genre);
+        }
+        return games;
     }
 
     // Listar GAMES por ESTÚDIO
     public List<GameDTO> listGamesByStudio(String studio) {
 
-        return gameRepository.findByStudio(studio)
+        List<GameDTO> games = gameRepository.findByStudio(studio)
                 .stream()
                 .map(GameDTO::new)
                 .toList();
+
+        if (games.isEmpty()) {
+            throw new RuntimeException("Nenhum Game encontrado do estúdio: " + studio);
+        }
+        return games;
     }
 
     // Listar GAMES DISPONÍVEIS
     public List<GameDTO> listAvailableGames() {
 
-        return gameRepository.findByAvailableTrue()
+        List<GameDTO> games = gameRepository.findByAvailableTrue()
                 .stream()
                 .map(GameDTO::new)
                 .toList();
+
+        if (games.isEmpty()) {
+            throw new RuntimeException("Nenhum Game disponível no momento.");
+        }
+        return games;
     }
 }

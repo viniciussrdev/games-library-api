@@ -3,7 +3,6 @@ package dev.viniciussr.gameslibrary.controller;
 import dev.viniciussr.gameslibrary.dto.GameDTO;
 import dev.viniciussr.gameslibrary.enums.Genres;
 import dev.viniciussr.gameslibrary.service.GameService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +13,11 @@ import java.util.List;
 @RequestMapping("/games")
 public class GameController {
 
-    @Autowired
-    private GameService gameService;
+    private final GameService gameService;
+
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @PostMapping
     public ResponseEntity<GameDTO> createGame(@RequestBody GameDTO dto) {
@@ -35,9 +37,7 @@ public class GameController {
 
     @GetMapping("/{id}")
     public ResponseEntity<GameDTO> findGameById(@PathVariable Long id) {
-        return gameService.findGameById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(gameService.findGameById(id));
     }
 
     @GetMapping
@@ -47,44 +47,21 @@ public class GameController {
 
     @GetMapping("/title")
     public ResponseEntity<List<GameDTO>> listGamesByTitle(@RequestParam String title) {
-
-        List<GameDTO> games = gameService.listGamesByTitle(title);
-
-        if (games.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(games);
+        return ResponseEntity.ok(gameService.listGamesByTitle(title));
     }
 
     @GetMapping("/genre")
     public ResponseEntity<List<GameDTO>> listGamesByGenre(@RequestParam Genres genre) {
-
-        List<GameDTO> games = gameService.listGamesByGenre(genre);
-
-        if (games.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(games);
+        return ResponseEntity.ok(gameService.listGamesByGenre(genre));
     }
 
     @GetMapping("/studio")
     public ResponseEntity<List<GameDTO>> listGamesByStudio(@RequestParam String studio) {
-
-        List<GameDTO> games = gameService.listGamesByStudio(studio);
-
-        if (games.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(games);
+        return ResponseEntity.ok(gameService.listGamesByStudio(studio));
     }
 
     @GetMapping("/available")
     public ResponseEntity<List<GameDTO>> listAvailableGames() {
-        List<GameDTO> games = gameService.listAvailableGames();
-
-        if (games.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(games);
+        return ResponseEntity.ok(gameService.listAvailableGames());
     }
 }

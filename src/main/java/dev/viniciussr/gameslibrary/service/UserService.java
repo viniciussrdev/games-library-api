@@ -7,7 +7,6 @@ import dev.viniciussr.gameslibrary.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -18,7 +17,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    // Salvar/Criar USUÁRIO
+    // -------------------- CRUD BÁSICO --------------------
+
+    // Criar USUÁRIO
     public UserDTO createUser(UserDTO dto) {
 
         User savedUser = new User(
@@ -53,47 +54,93 @@ public class UserService {
         userRepository.delete(deletedUser);
     }
 
-    // --------------- MÉTODOS DE BUSCA/LISTA ---------------
+    // --------------- MÉTODOS COMPLEMENTARES ---------------
+
+    // Validar limite de EMPRÉSTIMOS do USUÁRIO
+    void validateUserLoanLimit(User user) {
+
+        int maxLoans = switch (user.getPlan()) {
+            case NOOB -> 1;
+            case PRO -> 3;
+            case LEGEND -> 5;
+        };
+
+        if (user.getActiveLoans() >= maxLoans) {
+            throw new RuntimeException("Limite de empréstimos atingido para o plano: " + user.getPlan());
+        }
+    }
+
+    // Atualizar contagem de EMPRÉSTIMOS ATIVOS do USUÁRIO
+    void updateUserLoanCount(User user, int x) {
+
+        user.setActiveLoans(user.getActiveLoans() + x);
+        userRepository.save(user);
+    }
+
+    // --------------- FILTROS ---------------
 
     // Buscar USUÁRIO por ID
-    public Optional<UserDTO> findUserById(Long id) {
+    public UserDTO findUserById(Long id) {
+
         return userRepository.findById(id)
-                .map(UserDTO::new);
+                .map(UserDTO::new)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + id));
+
     }
 
     // Listar USUÁRIOS (Todos)
     public List<UserDTO> listUsers() {
 
-        return userRepository.findAll()
+        List<UserDTO> users = userRepository.findAll()
                 .stream()
                 .map(UserDTO::new)
                 .toList();
+
+        if (users.isEmpty()) {
+            throw new RuntimeException("Nenhum usuário encontrado");
+        }
+        return users;
     }
 
     // Listar USUÁRIOS por NOME
     public List<UserDTO> listUsersByName(String name) {
 
-        return userRepository.findByName(name)
+        List<UserDTO> users = userRepository.findByName(name)
                 .stream()
                 .map(UserDTO::new)
                 .toList();
+
+        if (users.isEmpty()) {
+            throw new RuntimeException("Nenhum Usuário encontrado com o Nome: " + name);
+        }
+        return users;
     }
 
     // Listar USUÁRIOS por EMAIL
     public List<UserDTO> listUsersByEmail(String email) {
 
-        return userRepository.findByEmail(email)
+        List<UserDTO> users = userRepository.findByEmail(email)
                 .stream()
                 .map(UserDTO::new)
                 .toList();
+
+        if (users.isEmpty()) {
+            throw new RuntimeException("Nenhum Usuário encontrado com o Email: " + email);
+        }
+        return users;
     }
 
     // Listar USUÁRIOS por PLANO
     public List<UserDTO> listUsersByPlan(Plans plan) {
 
-        return userRepository.findByPlan(plan)
+        List<UserDTO> users = userRepository.findByPlan(plan)
                 .stream()
                 .map(UserDTO::new)
                 .toList();
+
+        if (users.isEmpty()) {
+            throw new RuntimeException("Nenhum Usuário encontrado com o Plano: " + plan.name());
+        }
+        return users;
     }
 }
