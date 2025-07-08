@@ -1,14 +1,14 @@
 package dev.viniciussr.gameslibrary.service;
 
 import dev.viniciussr.gameslibrary.dto.GameDTO;
-import dev.viniciussr.gameslibrary.dto.LoanDTO;
 import dev.viniciussr.gameslibrary.enums.Genres;
+import dev.viniciussr.gameslibrary.exception.game.GameUnavailableException;
+import dev.viniciussr.gameslibrary.exception.game.GameNotFoundException;
 import dev.viniciussr.gameslibrary.model.Game;
 import dev.viniciussr.gameslibrary.repository.GameRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class GameService {
@@ -39,7 +39,7 @@ public class GameService {
     public GameDTO updateGame(Long id, GameDTO dto) {
 
         Game updatedGame = gameRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + id));
+                .orElseThrow(() -> new GameNotFoundException("Game não encontrado no id: " + id));
 
         updatedGame.setTitle(dto.title());
         updatedGame.setGenre(dto.genre());
@@ -55,7 +55,7 @@ public class GameService {
     public void deleteGame(Long id) {
 
         Game deletedGame = gameRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + id));
+                .orElseThrow(() -> new GameNotFoundException("Game não encontrado no id: " + id));
 
         gameRepository.delete(deletedGame);
     }
@@ -66,8 +66,7 @@ public class GameService {
     void validateGameAvailability(Game game) {
 
         if (game.getQuantity() <= 0) {
-            throw new RuntimeException("Game indisponível para empréstimo: " + game.getTitle() +
-                    " (Quantidade: " + game.getQuantity() + ") ");
+            throw new GameUnavailableException(game);
         }
     }
 
@@ -86,7 +85,7 @@ public class GameService {
 
         return gameRepository.findById(id)
                 .map(GameDTO::new)
-                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + id));
+                .orElseThrow(() -> new GameNotFoundException("Game não encontrado no id: " + id));
     }
 
     // Listar GAMES (Todos)
@@ -98,7 +97,7 @@ public class GameService {
                 .toList();
 
         if (games.isEmpty()) {
-            throw new RuntimeException("Nenhum Game encontrado");
+            throw new GameNotFoundException("Nenhum Game encontrado");
         }
         return games;
     }
@@ -112,7 +111,7 @@ public class GameService {
                 .toList();
 
         if (games.isEmpty()) {
-            throw new RuntimeException("Nenhum Game encontrado com o título: " + title);
+            throw new GameNotFoundException("Nenhum Game encontrado com o título: " + title);
         }
         return games;
     }
@@ -126,7 +125,7 @@ public class GameService {
                 .toList();
 
         if (games.isEmpty()) {
-            throw new RuntimeException("Nenhum Game encontrado do gênero: " + genre);
+            throw new GameNotFoundException("Nenhum Game encontrado do gênero: " + genre);
         }
         return games;
     }
@@ -140,7 +139,7 @@ public class GameService {
                 .toList();
 
         if (games.isEmpty()) {
-            throw new RuntimeException("Nenhum Game encontrado do estúdio: " + studio);
+            throw new GameNotFoundException("Nenhum Game encontrado do estúdio: " + studio);
         }
         return games;
     }
@@ -154,7 +153,7 @@ public class GameService {
                 .toList();
 
         if (games.isEmpty()) {
-            throw new RuntimeException("Nenhum Game disponível no momento.");
+            throw new GameNotFoundException("Nenhum Game disponível no momento.");
         }
         return games;
     }

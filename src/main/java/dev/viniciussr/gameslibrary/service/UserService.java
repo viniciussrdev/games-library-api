@@ -2,6 +2,8 @@ package dev.viniciussr.gameslibrary.service;
 
 import dev.viniciussr.gameslibrary.dto.UserDTO;
 import dev.viniciussr.gameslibrary.enums.Plans;
+import dev.viniciussr.gameslibrary.exception.loan.LoanLimitExceededException;
+import dev.viniciussr.gameslibrary.exception.user.UserNotFoundException;
 import dev.viniciussr.gameslibrary.model.User;
 import dev.viniciussr.gameslibrary.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class UserService {
     public UserDTO updateUser(Long id, UserDTO dto) {
 
         User updatedUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado no id: " + id));
 
         updatedUser.setName(dto.name());
         updatedUser.setEmail(dto.email());
@@ -49,7 +51,7 @@ public class UserService {
     public void deleteUser(Long id) {
 
         User deletedUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado no id: " + id));
 
         userRepository.delete(deletedUser);
     }
@@ -66,7 +68,7 @@ public class UserService {
         };
 
         if (user.getActiveLoans() >= maxLoans) {
-            throw new RuntimeException("Limite de empréstimos atingido para o plano: " + user.getPlan());
+            throw new LoanLimitExceededException(user);
         }
     }
 
@@ -84,7 +86,7 @@ public class UserService {
 
         return userRepository.findById(id)
                 .map(UserDTO::new)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado no id: " + id));
 
     }
 
@@ -97,7 +99,7 @@ public class UserService {
                 .toList();
 
         if (users.isEmpty()) {
-            throw new RuntimeException("Nenhum usuário encontrado");
+            throw new UserNotFoundException("Nenhum Usuário encontrado");
         }
         return users;
     }
@@ -111,7 +113,7 @@ public class UserService {
                 .toList();
 
         if (users.isEmpty()) {
-            throw new RuntimeException("Nenhum Usuário encontrado com o Nome: " + name);
+            throw new UserNotFoundException("Nenhum Usuário encontrado com o Nome: " + name);
         }
         return users;
     }
@@ -125,7 +127,7 @@ public class UserService {
                 .toList();
 
         if (users.isEmpty()) {
-            throw new RuntimeException("Nenhum Usuário encontrado com o Email: " + email);
+            throw new UserNotFoundException("Nenhum Usuário encontrado com o Email: " + email);
         }
         return users;
     }
@@ -139,7 +141,7 @@ public class UserService {
                 .toList();
 
         if (users.isEmpty()) {
-            throw new RuntimeException("Nenhum Usuário encontrado com o Plano: " + plan.name());
+            throw new UserNotFoundException("Nenhum Usuário encontrado com o Plano: " + plan.name());
         }
         return users;
     }

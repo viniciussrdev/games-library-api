@@ -1,8 +1,11 @@
 package dev.viniciussr.gameslibrary.service;
 
-import dev.viniciussr.gameslibrary.dto.GameDTO;
 import dev.viniciussr.gameslibrary.dto.LoanDTO;
 import dev.viniciussr.gameslibrary.enums.LoanStatus;
+import dev.viniciussr.gameslibrary.exception.game.GameNotFoundException;
+import dev.viniciussr.gameslibrary.exception.loan.LoanAlreadyReturnedException;
+import dev.viniciussr.gameslibrary.exception.loan.LoanNotFoundException;
+import dev.viniciussr.gameslibrary.exception.user.UserNotFoundException;
 import dev.viniciussr.gameslibrary.model.Game;
 import dev.viniciussr.gameslibrary.model.Loan;
 import dev.viniciussr.gameslibrary.model.User;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LoanService {
@@ -40,10 +42,10 @@ public class LoanService {
     public LoanDTO createLoan(LoanDTO dto) {
 
         Game game = gameRepository.findById(dto.gameId())
-                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + dto.gameId()));
+                .orElseThrow(() -> new GameNotFoundException("Game não encontrado no id: " + dto.gameId()));
 
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + dto.userId()));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado no id: " + dto.userId()));
 
         gameService.validateGameAvailability(game);
         userService.validateUserLoanLimit(user);
@@ -66,16 +68,16 @@ public class LoanService {
     public LoanDTO updateLoan(Long id, LoanDTO dto) {
 
         Loan updatedLoan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
+                .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado no id: " + id));
 
         Game game = gameRepository.findById(dto.gameId())
-                .orElseThrow(() -> new RuntimeException("Game não encontrado no id: " + dto.gameId()));
+                .orElseThrow(() -> new GameNotFoundException("Game não encontrado no id: " + dto.gameId()));
 
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no id: " + dto.userId()));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado no id: " + dto.userId()));
 
         if (updatedLoan.getStatus() == LoanStatus.RETURNED) {
-            throw new RuntimeException("Não é possível alterar um empréstimo já devolvido.");
+            throw new LoanAlreadyReturnedException("Não é possível alterar um empréstimo já devolvido.");
         }
 
         updatedLoan.setGame(game);
@@ -91,7 +93,7 @@ public class LoanService {
     public void deleteLoan(Long id) {
 
         Loan deletedLoan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
+                .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado no id: " + id));
 
         loanRepository.delete(deletedLoan);
     }
@@ -102,10 +104,10 @@ public class LoanService {
     public void returnLoan(Long id) {
 
         Loan returnedLoan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
+                .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado no id: " + id));
 
         if (returnedLoan.getStatus() != LoanStatus.ACTIVE) {
-            throw new RuntimeException("Este empréstimo já foi encerrado: " + returnedLoan.getIdLoan());
+            throw new LoanAlreadyReturnedException("Este empréstimo já foi encerrado: " + returnedLoan.getIdLoan());
         }
 
         returnedLoan.setStatus(LoanStatus.RETURNED);
@@ -143,7 +145,7 @@ public class LoanService {
 
         return loanRepository.findById(id)
                 .map(LoanDTO::new)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado no id: " + id));
+                .orElseThrow(() -> new LoanNotFoundException("Empréstimo não encontrado no id: " + id));
     }
 
     // Listar EMPRÉSTIMOS (Todos)
@@ -155,7 +157,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado");
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado");
         }
         return loans;
     }
@@ -169,7 +171,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para o Game no id: " + idGame);
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para o Game no id: " + idGame);
         }
         return loans;
     }
@@ -183,7 +185,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para o Usuário no id: " + idUser);
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para o Usuário no id: " + idUser);
         }
         return loans;
     }
@@ -197,7 +199,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para a seguinte Data: " + loanDate);
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para a seguinte Data: " + loanDate);
         }
         return loans;
     }
@@ -211,7 +213,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para a seguinte Data: " + returnDate);
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para a seguinte Data: " + returnDate);
         }
         return loans;
     }
@@ -225,7 +227,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para o Status: " + loanStatus.name());
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para o Status: " + loanStatus.name());
         }
         return loans;
     }
@@ -239,7 +241,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para o Usuário: " + userName);
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para o Usuário: " + userName);
         }
         return loans;
     }
@@ -253,7 +255,7 @@ public class LoanService {
                 .toList();
 
         if (loans.isEmpty()) {
-            throw new RuntimeException("Nenhum Empréstimo encontrado para o Game: " + gameTitle);
+            throw new LoanNotFoundException("Nenhum Empréstimo encontrado para o Game: " + gameTitle);
         }
         return loans;
     }
