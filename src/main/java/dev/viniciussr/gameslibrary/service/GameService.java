@@ -30,7 +30,7 @@ public class GameService {
                 dto.studio(),
                 dto.platform(),
                 dto.quantity(),
-                dto.available()
+                true
         );
         return new GameDTO(gameRepository.save(savedGame));
     }

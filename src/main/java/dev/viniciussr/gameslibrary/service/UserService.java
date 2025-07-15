@@ -28,7 +28,7 @@ public class UserService {
                 dto.name(),
                 dto.email(),
                 dto.plan(),
-                dto.activeLoans()
+                0
         );
         return new UserDTO(userRepository.save(savedUser));
     }
