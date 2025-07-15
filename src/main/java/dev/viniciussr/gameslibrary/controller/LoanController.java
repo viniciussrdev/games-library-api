@@ -1,10 +1,8 @@
 package dev.viniciussr.gameslibrary.controller;
 
-import dev.viniciussr.gameslibrary.dto.GameDTO;
 import dev.viniciussr.gameslibrary.dto.LoanDTO;
 import dev.viniciussr.gameslibrary.enums.LoanStatus;
 import dev.viniciussr.gameslibrary.service.LoanService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,21 +53,21 @@ public class LoanController {
     }
 
     @GetMapping("/game-id/{id}")
-    public ResponseEntity<List<LoanDTO>> listLoansByGameId(@RequestParam Long IdGame) {
+    public ResponseEntity<List<LoanDTO>> listLoansByGameId(@PathVariable("id") Long IdGame) {
         return ResponseEntity.ok(loanService.listLoansByGameId(IdGame));
     }
 
     @GetMapping("/user-id/{id}")
-    public ResponseEntity<List<LoanDTO>> listLoansByUserId(@RequestParam Long IdUser) {
+    public ResponseEntity<List<LoanDTO>> listLoansByUserId(@PathVariable("id") Long IdUser) {
         return ResponseEntity.ok(loanService.listLoansByUserId(IdUser));
     }
 
-    @GetMapping("/loan-date")
+    @GetMapping("/loan-date/")
     public ResponseEntity<List<LoanDTO>> listLoansByLoanDate(@RequestParam LocalDate loanDate) {
         return ResponseEntity.ok(loanService.listLoansByLoanDate(loanDate));
     }
 
-    @GetMapping("/return-date")
+    @GetMapping("/return-date/")
     public ResponseEntity<List<LoanDTO>> listLoansByReturnDate(@RequestParam LocalDate returnDate) {
         return ResponseEntity.ok(loanService.listLoansByReturnDate(returnDate));
     }
