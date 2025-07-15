@@ -38,6 +38,12 @@ public class LoanController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/return/{id}")
+    public ResponseEntity<Void> returnLoan(@PathVariable Long id) {
+        loanService.returnLoan(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<LoanDTO> findLoanById(@PathVariable Long id) {
         return ResponseEntity.ok(loanService.findLoanById(id));
@@ -48,12 +54,12 @@ public class LoanController {
         return ResponseEntity.ok(loanService.listLoans());
     }
 
-    @GetMapping("/game-id")
+    @GetMapping("/game-id/{id}")
     public ResponseEntity<List<LoanDTO>> listLoansByGameId(@RequestParam Long IdGame) {
         return ResponseEntity.ok(loanService.listLoansByGameId(IdGame));
     }
 
-    @GetMapping("/user-id")
+    @GetMapping("/user-id/{id}")
     public ResponseEntity<List<LoanDTO>> listLoansByUserId(@RequestParam Long IdUser) {
         return ResponseEntity.ok(loanService.listLoansByUserId(IdUser));
     }

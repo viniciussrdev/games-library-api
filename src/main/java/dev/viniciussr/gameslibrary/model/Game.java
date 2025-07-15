@@ -28,6 +28,7 @@ public class Game {
     private String studio; // Estúdio
 
     @ElementCollection(targetClass = Platforms.class)
+    @CollectionTable(name = "tb_game_platform")
     @Enumerated(EnumType.STRING)
     private Set<Platforms> platform; // Plataforma
 
