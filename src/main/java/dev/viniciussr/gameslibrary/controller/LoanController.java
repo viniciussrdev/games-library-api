@@ -30,8 +30,8 @@ public class LoanController {
         return ResponseEntity.ok(loanService.updateLoan(id, dto));
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteLoan(@RequestParam Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLoan(@PathVariable Long id) {
         loanService.deleteLoan(id);
         return ResponseEntity.noContent().build();
     }
@@ -62,28 +62,28 @@ public class LoanController {
         return ResponseEntity.ok(loanService.listLoansByUserId(IdUser));
     }
 
-    @GetMapping("/loan-date/")
-    public ResponseEntity<List<LoanDTO>> listLoansByLoanDate(@RequestParam LocalDate loanDate) {
+    @GetMapping(params = "loan-date")
+    public ResponseEntity<List<LoanDTO>> listLoansByLoanDate(@RequestParam("loan-date") LocalDate loanDate) {
         return ResponseEntity.ok(loanService.listLoansByLoanDate(loanDate));
     }
 
-    @GetMapping("/return-date/")
-    public ResponseEntity<List<LoanDTO>> listLoansByReturnDate(@RequestParam LocalDate returnDate) {
+    @GetMapping(params = "return-date")
+    public ResponseEntity<List<LoanDTO>> listLoansByReturnDate(@RequestParam("return-date") LocalDate returnDate) {
         return ResponseEntity.ok(loanService.listLoansByReturnDate(returnDate));
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<List<LoanDTO>> listLoansByStatus(@RequestParam LoanStatus loanStatus) {
+    @GetMapping(params = "status")
+    public ResponseEntity<List<LoanDTO>> listLoansByStatus(@RequestParam("status") LoanStatus loanStatus) {
         return ResponseEntity.ok(loanService.listLoansByStatus(loanStatus));
     }
 
-    @GetMapping("/username")
-    public ResponseEntity<List<LoanDTO>> listLoansByUserName(@RequestParam String userName) {
+    @GetMapping(params = "username")
+    public ResponseEntity<List<LoanDTO>> listLoansByUserName(@RequestParam("username") String userName) {
         return ResponseEntity.ok(loanService.listLoansByUserName(userName));
     }
 
-    @GetMapping("/game-title")
-    public ResponseEntity<List<LoanDTO>> listLoansByGameTitle(@RequestParam String gameTitle) {
+    @GetMapping(params = "title")
+    public ResponseEntity<List<LoanDTO>> listLoansByGameTitle(@RequestParam("title") String gameTitle) {
         return ResponseEntity.ok(loanService.listLoansByGameTitle(gameTitle));
     }
 }

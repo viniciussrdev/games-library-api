@@ -29,8 +29,8 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, dto));
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@RequestParam Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
@@ -45,17 +45,17 @@ public class UserController {
         return ResponseEntity.ok(userService.listUsers());
     }
 
-    @GetMapping("/name")
+    @GetMapping(params = "name")
     public ResponseEntity<List<UserDTO>> listUsersByName(@RequestParam String name) {
         return ResponseEntity.ok(userService.listUsersByName(name));
     }
 
-    @GetMapping("/email")
+    @GetMapping(params = "email")
     public ResponseEntity<List<UserDTO>> listUsersByEmail(@RequestParam String email) {
         return ResponseEntity.ok(userService.listUsersByEmail(email));
     }
 
-    @GetMapping("/plan")
+    @GetMapping(params = "plan")
     public ResponseEntity<List<UserDTO>> listUsersByPlan(@RequestParam Plans plan) {
         return ResponseEntity.ok(userService.listUsersByPlan(plan));
     }

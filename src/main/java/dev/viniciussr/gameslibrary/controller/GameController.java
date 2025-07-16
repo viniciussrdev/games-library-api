@@ -45,17 +45,17 @@ public class GameController {
         return ResponseEntity.ok(gameService.listGames());
     }
 
-    @GetMapping("/title")
+    @GetMapping(params = "title")
     public ResponseEntity<List<GameDTO>> listGamesByTitle(@RequestParam String title) {
         return ResponseEntity.ok(gameService.listGamesByTitle(title));
     }
 
-    @GetMapping("/genre")
+    @GetMapping(params = "genre")
     public ResponseEntity<List<GameDTO>> listGamesByGenre(@RequestParam Genres genre) {
         return ResponseEntity.ok(gameService.listGamesByGenre(genre));
     }
 
-    @GetMapping("/studio")
+    @GetMapping(params = "studio")
     public ResponseEntity<List<GameDTO>> listGamesByStudio(@RequestParam String studio) {
         return ResponseEntity.ok(gameService.listGamesByStudio(studio));
     }
